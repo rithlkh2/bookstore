@@ -1,17 +1,19 @@
 package np.com.mshrestha.bookstore.controller;
 
-import java.util.Map;
-
 import np.com.mshrestha.bookstore.model.Book;
 import np.com.mshrestha.bookstore.service.BookService;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class BookController {
@@ -66,5 +68,54 @@ public class BookController {
 		 * redirects to the path relative to the project root path
 		 */
 		return "redirect:/listBooks";
+	}
+	@RequestMapping(value = "/getListBooks",method = RequestMethod.GET)
+	public ResponseEntity<List<Book>> getAllStudents(){
+		final HttpHeaders httpHeaders= new HttpHeaders();
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+		List<Book> studentList =bookService.listBooks();
+		return new ResponseEntity<List<Book>>(studentList,httpHeaders, HttpStatus.OK);
+	}
+	@RequestMapping(value="/getListBooks/{id}", method = RequestMethod.GET )
+	public ResponseEntity<Book> getPersonById(@PathVariable("id") Long id) {
+		final HttpHeaders httpHeaders= new HttpHeaders();
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+		Book book = bookService.getBook(id);
+		return new ResponseEntity<Book>(book,httpHeaders, HttpStatus.OK);
+	}
+	/*
+	Add
+	 */
+	@RequestMapping(value= "/getListBooks", method = RequestMethod.POST)
+	public ResponseEntity<Void> addBooks(@RequestBody Book book, UriComponentsBuilder builder) {
+		bookService.saveBook(book);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setLocation(builder.path("/getListBooks/{id}").buildAndExpand(book.getId()).toUri());
+		return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+	}
+	/*
+	Delete
+	 */
+	@RequestMapping(value="/getListBooks/{id}", method = RequestMethod.DELETE )
+	public ResponseEntity<Void> deleteBooks(@PathVariable("id") Long id) {
+		final HttpHeaders httpHeaders= new HttpHeaders();
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+		bookService.deleteBook(id);
+		return new ResponseEntity<Void>(httpHeaders,HttpStatus.NO_CONTENT);
+	}
+	/*
+	Update
+	 */
+	@RequestMapping(value="/getListBooks/{id}", method = RequestMethod.PUT )
+	public ResponseEntity<Void> UpdateBook(@RequestBody Book book, UriComponentsBuilder builder) {
+		bookService.saveBook(book);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setLocation(builder.path("/getListBooks/{id}").buildAndExpand(book.getId()).toUri());
+		return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+	}
+
+	@RequestMapping(value = "/home")
+	public String getHomePage(){
+		return "/book/home";
 	}
 }

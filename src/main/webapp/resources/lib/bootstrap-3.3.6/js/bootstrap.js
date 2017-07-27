@@ -244,7 +244,6 @@ if (typeof jQuery === 'undefined') {
     }
   }
 
-
   // BUTTON PLUGIN DEFINITION
   // ========================
 
